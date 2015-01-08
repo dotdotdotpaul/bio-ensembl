@@ -172,7 +172,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<rcov>, [">= 0"])
       s.add_dependency(%q<bio>, [">= 1.4.1"])
       s.add_dependency(%q<mysql>, [">= 0"])
-      s.add_dependency(%q<activerecord>, ["= 3.0.0"])
+      s.add_dependency(%q<activerecord>, ["~> 3.0.0"])
     end
   else
     s.add_dependency(%q<bio>, [">= 1.4.1"])
