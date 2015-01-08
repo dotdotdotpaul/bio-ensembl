@@ -177,7 +177,7 @@ Gem::Specification.new do |s|
   else
     s.add_dependency(%q<bio>, [">= 1.4.1"])
     s.add_dependency(%q<mysql>, [">= 0"])
-    s.add_dependency(%q<activerecord>, ["= 3.0.0"])
+    s.add_dependency(%q<activerecord>, ["~> 3.0.0"])
     s.add_dependency(%q<shoulda>, [">= 0"])
     s.add_dependency(%q<bundler>, ["~> 1.0.0"])
     s.add_dependency(%q<jeweler>, ["~> 1.5.2"])
