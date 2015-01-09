@@ -1038,6 +1038,7 @@ module Ensembl
       has_many :attrib_types, :through => :gene_attrib
 
       has_many :transcripts
+      belongs_to :canoncial_transcript, :class_name => "Transcript"
 
       belongs_to :analysis
       
@@ -1133,12 +1134,6 @@ module Ensembl
         return xref.display_label
       end
 
-      # The Gene#canonical_transcript returns the longest transcript for that gene.
-      #
-      def canonical_transcript
-       ct = self.transcripts.sort {|a,b| b.seq.length <=> a.seq.length}
-       return ct[0]
-      end
     end
     
     # The GeneStableId class provides an interface to the gene_stable_id
