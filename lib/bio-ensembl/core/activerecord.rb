@@ -1133,15 +1133,14 @@ module Ensembl
         return xref.display_label
       end
 
+      # The Gene#canonical_transcript returns the longest transcript for that gene.
+      #
+      def canonical_transcript
+       ct = self.transcripts.sort {|a,b| b.seq.length <=> a.seq.length}
+       return ct[0]
+      end
     end
     
-    # The Gene#canonical_transcript returns the longest transcript for that gene.
-    #
-    def canonical_transcript
-     ct = self.transcripts.sort {|a,b| b.seq.length <=> a.seq.length}
-     return ct[0]
-    end
-
     # The GeneStableId class provides an interface to the gene_stable_id
     # table. This table contains Ensembl stable IDs for genes.
     #
