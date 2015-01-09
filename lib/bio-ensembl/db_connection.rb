@@ -101,7 +101,7 @@ module Ensembl
       def self.generic_connect(db_type, species, release, args = {})
         
         # check which release is used and load the correct VariationFeature version
-        require (release < 62) ? File.dirname(__FILE__) + '/variation/variation_feature.rb' : File.dirname(__FILE__) + '/variation/variation_feature62.rb'
+        require (release.to_i < 62) ? File.dirname(__FILE__) + '/variation/variation_feature.rb' : File.dirname(__FILE__) + '/variation/variation_feature62.rb'
         Ensembl::SESSION.reset
         Ensembl::SESSION.release = release
         db_name = nil
