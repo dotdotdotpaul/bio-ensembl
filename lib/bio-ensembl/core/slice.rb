@@ -117,8 +117,7 @@ module Ensembl
       # @param [Integer] flanking_seq_length Length of the flanking sequence
       # @return [Slice] Slice object
       def self.fetch_by_gene_stable_id(gene_stable_id, flanking_seq_length = 0)
-        gene_stable_id = Ensembl::Core::GeneStableId.find_by_stable_id(gene_stable_id)
-      	gene = gene_stable_id.gene
+      	gene = Ensembl::Core::Gene.where(:stable_id => gene_stable_id).first
         seq_region = gene.seq_region
 
         return Ensembl::Core::Slice.new(seq_region, gene.seq_region_start - flanking_seq_length, gene.seq_region_end + flanking_seq_length, gene.seq_region_strand)
@@ -133,8 +132,7 @@ module Ensembl
       # @param [Integer] flanking_seq_length Length of the flanking sequence
       # @return [Slice] Slice object
       def self.fetch_by_transcript_stable_id(transcript_stable_id, flanking_seq_length = 0)
-        transcript_stable_id = Ensembl::Core::TranscriptStableId.find_by_stable_id(transcript_stable_id)
-      	transcript = transcript_stable_id.transcript
+      	transcript = Ensembl::Core::Transcript.where(:stable_id => transcript_stable_id).first
         seq_region = transcript.seq_region
 
         return Ensembl::Core::Slice.new(seq_region, transcript.seq_region_start - flanking_seq_length, transcript.seq_region_end + flanking_seq_length, transcript.seq_region_strand)

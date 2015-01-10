@@ -26,8 +26,8 @@ end
 
 module Ensembl
   DB_ADAPTER = 'mysql'
-  DB_HOST = 'ensembldb.ensembl.org'
-  DB_USERNAME = 'anonymous'
+  DB_HOST = 'localhost'# 'ensembldb.ensembl.org'
+  DB_USERNAME = ''#'anonymous'
   DB_PASSWORD = ''
   EG_HOST = 'mysql.ebi.ac.uk'
   EG_PORT = 4157
@@ -118,14 +118,16 @@ module Ensembl
         else 
           db_name = self.get_name_from_db(db_type,species,release,args) # try to find the corresponding database 
         end 
-        establish_connection(
+        db_conn_config = {
                             :adapter => args[:adapter] || Ensembl::DB_ADAPTER,
                             :host => args[:host] || Ensembl::DB_HOST,
                             :database => db_name,
                             :username => args[:username] || Ensembl::DB_USERNAME,
                             :password => args[:password] || Ensembl::DB_PASSWORD,
                             :port => args[:port]
-                          )
+        }
+        # puts "Connecting to: #{db_conn_config.inspect}"
+        establish_connection(db_conn_config)
         
         self.retrieve_connection # Check if the connection is working
       

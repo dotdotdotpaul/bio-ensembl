@@ -5,13 +5,13 @@
 
 Gem::Specification.new do |s|
   s.name = "bio-ensembl"
-  s.version = "1.1.0"
+  s.version = "1.2.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
-  s.authors = ["Jan Aerts", "Francesco Strozzi"]
-  s.date = "2011-12-06"
+  s.authors = ["Jan Aerts", "Francesco Strozzi", "Paul Clegg"]
+  s.date = "2015-01-09"
   s.description = "This API provides a complete set of methods and classes to access the Ensembl database using Ruby programming language"
-  s.email = ["jan.aerts@gmail.com", "francesco.strozzi@gmail.com"]
+  s.email = ["jan.aerts@gmail.com", "francesco.strozzi@gmail.com", "dotdotdotpaul@gmail.com"]
   s.executables = ["ensembl", "variation_effect_predictor"]
   s.extra_rdoc_files = [
     "LICENSE.txt",
@@ -102,7 +102,7 @@ Gem::Specification.new do |s|
   s.homepage = "http://github.com/fstrozzi/bioruby-ensembl"
   s.licenses = ["MIT"]
   s.require_paths = ["lib"]
-  s.rubygems_version = "1.8.12"
+  s.rubygems_version = "2.1.11"
   s.summary = "A Ruby API to the Ensembl database"
   s.test_files = [
     "test/default/test_connection.rb",

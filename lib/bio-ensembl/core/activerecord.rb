@@ -661,10 +661,6 @@ module Ensembl
       has_many :dna_align_features, :through => :exon_supporting_features, :conditions => ["feature_type = 'dna_align_feature'"]
       has_many :protein_align_features, :through => :exon_supporting_features, :conditions => ["feature_type = 'protein_align_feature'"]
 
-      def stable_id
-        return self.exon_stable_id.stable_id
-      end
-
       # The Exon#seq method returns the sequence of the exon.
       def seq
         seq_region = nil
@@ -680,29 +676,9 @@ module Ensembl
       
       
       def self.find_by_stable_id(stable_id)
-          exon_stable_id = ExonStableId.find_by_stable_id(stable_id)
-          if exon_stable_id.nil?
-            return nil
-          else
-            return exon_stable_id.exon
-          end
+        self.where(:stable_id => stable_id).first
       end
       
-    end
-
-    # The ExonStableId class provides an interface to the exon_stable_id
-    # table. This table contains Ensembl stable IDs for exons.
-    #
-    # This class uses ActiveRecord to access data in the Ensembl database.
-    # See the general documentation of the Ensembl module for
-    # more information on what this means and what methods are available.
-    #
-    # @example
-    #  my_exon = ExonStableId.find_by_stable_id('ENSE00001494622').exon
-    class ExonStableId < DBConnection
-      self.primary_key = 'stable_id'
-      
-      belongs_to :exon
     end
 
     # The ExonTranscript class provides the link between exons and transcripts.
@@ -1032,13 +1008,12 @@ module Ensembl
       self.primary_key = 'gene_id'
 
       belongs_to :seq_region
-      has_one :gene_stable_id
 
       has_many :gene_attribs
       has_many :attrib_types, :through => :gene_attrib
 
       has_many :transcripts
-      belongs_to :canoncial_transcript, :class_name => "Transcript"
+      belongs_to :canonical_transcript, :class_name => "Transcript"
 
       belongs_to :analysis
       
@@ -1046,13 +1021,6 @@ module Ensembl
       has_many :xrefs, :through => :object_xrefs
 
       alias attribs gene_attribs
-
-      # The Gene#stable_id method returns the stable_id of the gene (i.e. the
-      # ENSG id).
-      def stable_id
-        return self.gene_stable_id.stable_id
-      	
-      end
 
       # The Gene#display_label method returns the default name of the gene.
       def display_label
@@ -1092,15 +1060,9 @@ module Ensembl
       # its stable ID (i.e. the "ENSG" accession number). If the name is
       # not found, it returns nil.
       def self.find_by_stable_id(stable_id)
-        result = nil
-        if stable_id.kind_of? Array
-          gene_stable_ids = GeneStableId.where({:stable_id => stable_id})
-          result = (gene_stable_ids.size == 0) ? nil : gene_stable_ids.map {|id| id.gene}
-        else
-          gene_stable_id = GeneStableId.find_by_stable_id(stable_id)
-          result = (gene_stable_id.nil?) ? nil : gene_stable_id.gene
-        end
-        return result
+        result = self.where(:stable_id => stable_id)
+        return result.first unless stable_id.is_a?(Array)
+        result
       end
       
       # The Gene#all_xrefs method is a convenience method in that it combines
@@ -1136,21 +1098,6 @@ module Ensembl
 
     end
     
-    # The GeneStableId class provides an interface to the gene_stable_id
-    # table. This table contains Ensembl stable IDs for genes.
-    #
-    # This class uses ActiveRecord to access data in the Ensembl database.
-    # See the general documentation of the Ensembl module for
-    # more information on what this means and what methods are available.
-    #
-    # @example
-    #  my_gene = GeneStableId.find_by_stable_id('ENSBTAG00000011670').gene
-    class GeneStableId < DBConnection
-      self.primary_key = 'stable_id'
-
-      belongs_to :gene
-    end
-
     # The MarkerMapLocation class provides an interface to the
     # marker_map_location table. This table contains mappings of
     # MarkerSynonym objects to a chromosome, and basically just stores
@@ -1291,23 +1238,6 @@ module Ensembl
       has_many :transcripts, :through => :transcript_attrib
     end
 
-    # The Transcript class provides an interface to the transcript_stable_id
-    # table. This table contains the Ensembl stable IDs for Transcript
-    # objects.
-    #
-    # This class uses ActiveRecord to access data in the Ensembl database.
-    # See the general documentation of the Ensembl module for
-    # more information on what this means and what methods are available.
-    #
-    # @example
-    #  transcript_stable_id = TranscriptStableId.find_by_stable_id('ENSBTAT00000015494')
-    #  puts transcript_stable_id.transcript.to_yaml
-    class TranscriptStableId < DBConnection
-      self.primary_key = 'stable_id'
-
-      belongs_to :transcript
-    end
-
     # The TranscriptAttrib class provides an interface to the transcript_attrib
     # table. This table contains the attributes for Transcript objects.
     #
@@ -1385,13 +1315,6 @@ module Ensembl
 
       alias attribs translation_attribs
       
-      # The Translation#stable_id method returns the stable ID of the translation.
-      # 
-      # @return [String] Ensembl stable ID
-      def stable_id
-      	return self.translation_stable_id.stable_id
-      end
-
       # The Translation#display_label method returns the default name of the translation.
       def display_label
         return Xref.find(self.display_xref_id).display_label
@@ -1404,30 +1327,8 @@ module Ensembl
       # object based on its stable ID (i.e. the "ENSP" accession number). If the 
       # name is not found, it returns nil.
       def self.find_by_stable_id(stable_id)
-        translation_stable_id = TranslationStableId.find_by_stable_id(stable_id)
-        if translation_stable_id.nil?
-          return nil
-        else
-          return translation_stable_id.translation
-        end
+        self.where(:stable_id => stable_id).first
       end
-    end
-
-    # The TranslationStableId class provides an interface to the
-    # translation_stable_id table. This table contains the Ensembl stable IDs
-    # for a given Translation.
-    #
-    # This class uses ActiveRecord to access data in the Ensembl database.
-    # See the general documentation of the Ensembl module for
-    # more information on what this means and what methods are available.
-    #
-    # @example
-    #  stable_id = TranslationStableId.find_by_name('ENSBTAP00000015494')
-    #  puts stable_id.to_yaml
-    class TranslationStableId < DBConnection
-      self.primary_key = 'stable_id'
-
-      belongs_to :translation
     end
 
     # The TranslationAttrib class provides an interface to the

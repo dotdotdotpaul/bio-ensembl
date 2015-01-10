@@ -77,13 +77,13 @@ module Ensembl
 
       belongs_to :gene
       belongs_to :seq_region
-      has_one :transcript_stable_id
       has_many :transcript_attribs
       
       has_many :exon_transcripts
       has_many :exons, :through => :exon_transcripts, :order => "exon_transcript.rank"
 
       has_one :translation
+      belongs_to :canonical_translation, :class_name => "Translation"
       
       has_many :object_xrefs, :foreign_key => 'ensembl_id', :conditions => "ensembl_object_type = 'Transcript'"
       has_many :xrefs, :through => :object_xrefs
@@ -121,13 +121,6 @@ module Ensembl
         return @introns
       end
       
-      # The Transcript#stable_id method returns the stable ID of the transcript.
-      # 
-      # @return [String] Ensembl stable ID of the transcript.
-      def stable_id
-      	return self.transcript_stable_id.stable_id
-      end
-
       # The Transcript#display_label method returns the default name of the transcript.
       def display_label
         return Xref.find(self.display_xref_id).display_label
@@ -136,40 +129,11 @@ module Ensembl
       alias :label :display_label
       alias :name :display_label
 
-      # The Transcript#find_all_by_stable_id class method returns an array of
-      # transcripts with the given stable_id. If none were found, an empty
-      # array is returned.
-      def self.find_all_by_stable_id(stable_id)
-      	answer = Array.new
-        transcript_stable_id_objects = Ensembl::Core::TranscriptStableId.find_all_by_stable_id(stable_id)
-        transcript_stable_id_objects.each do |transcript_stable_id_object|
-          answer.push(Ensembl::Core::Transcript.find(transcript_stable_id_object.transcript_id))
-        end
-      
-      	return answer
-      end
-      
-      # The Transcript#find_all_by_stable_id class method returns a
-      # transcripts with the given stable_id. If none was found, nil is returned.
-      def self.find_by_stable_id(stable_id)
-        all = self.find_all_by_stable_id(stable_id)
-        if all.length == 0
-          return nil
-        else
-          return all[0]
-        end
-      end
-      
       # The Transcript#find_by_stable_id class method fetches a Transcript object based on
       # its stable ID (i.e. the "ENST" accession number). If the name is
       # not found, it returns nil.
       def self.find_by_stable_id(stable_id)
-        transcript_stable_id = TranscriptStableId.find_by_stable_id(stable_id)
-        if transcript_stable_id.nil?
-          return nil
-        else
-          return transcript_stable_id.transcript
-        end
+        self.where(:stable_id => stable_id).first
       end
       
       # The Transcript#seq method returns the full sequence of all concatenated
