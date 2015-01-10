@@ -1033,29 +1033,19 @@ module Ensembl
       # The Gene#find_all_by_name class method searches the Xrefs for that name
       # and returns an array of the corresponding Gene objects. If the name is
       # not found, it returns an empty array.
-      def self.find_all_by_name(name)
-      	answer = Array.new
-        xrefs = Ensembl::Core::Xref.find_all_by_display_label(name)
-        xrefs.each do |xref|
-          answer.push(Ensembl::Core::Gene.find_by_display_xref_id(xref.xref_id))
-        end
-        
-        answer.reject!{|a| a.nil?}
-      	return answer
+      def self.find_all_by_name(name, opts={})
+        Ensembl::Core::Xref.where(opts.merge(:display_label => name)).map do |x|
+          Ensembl::Core::Gene.where(:display_xref_id => x.xref_id).first
+        end.compact
       end
       
       # The Gene#find_by_name class method searches the Xrefs for that name
       # and returns one Gene objects (even if there should be more). If the name is
       # not found, it returns nil.
       def self.find_by_name(name)
-        all_names = self.find_all_by_name(name)
-        if all_names.length == 0
-          return nil
-        else
-          return all_names[0]
-        end
+        self.find_all_by_name(name).first
       end
-      
+
       # The Gene#find_by_stable_id class method fetches a Gene object based on
       # its stable ID (i.e. the "ENSG" accession number). If the name is
       # not found, it returns nil.
@@ -1064,6 +1054,7 @@ module Ensembl
         return result.first unless stable_id.is_a?(Array)
         result
       end
+
       
       # The Gene#all_xrefs method is a convenience method in that it combines
       # three methods into one. It collects all xrefs for the gene itself, plus
