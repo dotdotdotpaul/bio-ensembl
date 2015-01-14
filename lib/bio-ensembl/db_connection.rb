@@ -130,7 +130,10 @@ module Ensembl
         establish_connection(db_conn_config)
         
         self.retrieve_connection # Check if the connection is working
-      
+      rescue Mysql2::Error
+        puts "!!! DB config = #{db_conn_config.inspect}"
+
+        raise
       end      
       
     end
