@@ -110,9 +110,7 @@ module Ensembl
           args[:port] = EG_PORT
           args[:host] = EG_HOST
         end    
-        if args[:port].nil? then
-          args[:port] = ( release > 47 ) ? 5306 : 3306
-        end
+        args[:port] = 3306 if args[:port].blank?
         if args[:database]
           db_name = args[:database]
         else 
