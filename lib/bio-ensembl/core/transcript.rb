@@ -85,11 +85,8 @@ module Ensembl
       has_one :translation
       belongs_to :canonical_translation, :class_name => "Translation"
       
-      # Made a method because polymorphic legacy model too tricky to just
-      # configure through ActiveRecord.
-      def object_xrefs
-        @object_xrefs ||= ObjectXref.where(:ensembl_object_type => "Transcript", :ensembl_id => self.id)
-      end
+      has_many :object_xrefs, :foreign_key => "ensembl_id",
+               :conditions => { :ensembl_object_type => "Transcript" }
 
       has_many :xrefs, :through => :object_xrefs
 
