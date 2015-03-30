@@ -85,7 +85,8 @@ module Ensembl
       has_one :translation
       belongs_to :canonical_translation, :class_name => "Translation"
       
-      has_many :object_xrefs, :foreign_key => 'ensembl_id', :conditions => "ensembl_object_type = 'Transcript'"
+      has_many :object_xrefs, :as => :object, :foreign_key => 'ensembl_id'
+
       has_many :xrefs, :through => :object_xrefs
 
       has_many :transcript_supporting_features

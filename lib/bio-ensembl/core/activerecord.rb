@@ -1361,7 +1361,9 @@ module Ensembl
       belongs_to :external_db
       has_many :external_synonyms
 
-      has_many :genes
+      has_many :genes, :foreign_key => "display_xref_id"
+      has_many :transcripts, :foreign_key => "display_xref_id"
+      has_many :object_xrefs
       
       def to_s
         return self.external_db.db_name.to_s + ":" + self.display_label
@@ -1383,11 +1385,20 @@ module Ensembl
     class ObjectXref < DBConnection
       self.primary_key = 'object_xref_id'
       
-      belongs_to :gene, :class_name => "Gene", :foreign_key => 'ensembl_id', :conditions => ["ensembl_object_type = 'Gene'"]
-      belongs_to :transcript, :class_name => "Transcript", :foreign_key => 'ensembl_id', :conditions => ["ensembl_object_type = 'Transcript'"]
-      belongs_to :translation, :class_name => "Translation", :foreign_key => 'ensembl_id', :conditions => ["ensembl_object_type = 'Translation'"]
       belongs_to :xref
       has_one :go_xref
+
+      scope :genes, -> { where(:ensembl_object_type => "Gene") }
+      scope :transcripts, -> { where(:ensembl_object_type => "Transcript") }
+      scope :translations, -> { where(:ensembl_object_type => "Translation") }
+
+      # object -- polymorphism is a bit complicated here, due to namespace
+      # issues and the fact the primary keys are different between all
+      # the different classes.
+      def object
+        @object ||= "Ensembl::Core::#{self.ensembl_object_type}".constantize.find(self.ensembl_id)
+      end
+
     end
     
     # The GoXref class provides an interface to the
