@@ -35,15 +35,23 @@ module Ensembl
         # Check if these are actually two adjacent exons from the same transcript
         ok = true
 
-        transcript = nil
-        exon_1.transcripts.each do |t|
-          transcript = t if exon_2.transcripts.include?(t)
+        # Multiple transcripts may include both exons, but not all of them
+        # may be adjacent.  We need to find all possible transcripts and
+        # try to select the one that actually fits the description, if possible
+        transcripts = exon_1.transcripts.select do | t |
+          exon_2.transcripts.include?(t)
         end
-        raise ArgumentError, "Arguments should be adjacent exons of same transcript" if transcript.nil?
+        # No transcripts matched at all?
+        raise ArgumentError, "Arguments should be adjacent exons of same transcript" if transcripts.empty?
         
-        rank_1 = ExonTranscript.find_by_transcript_id_and_exon_id(transcript.id, exon_1.id).rank
-        rank_2 = ExonTranscript.find_by_transcript_id_and_exon_id(transcript.id, exon_2.id).rank
-        raise ArgumentError, "Arguments should be adjacent exons of same transcript" if (rank_2 - rank_1).abs > 1
+        # See if any of these transcripts have the exons adjacent...
+        transcript = transcripts.find do | t |
+          rank_1 = ExonTranscript.find_by_transcript_id_and_exon_id(transcript.id, exon_1.id).rank
+          rank_2 = ExonTranscript.find_by_transcript_id_and_exon_id(transcript.id, exon_2.id).rank
+          (rank_2 - rank_1).abs > 1
+        end
+        # No transcript had the exons adjacent?
+        raise ArgumentError, "Arguments should be adjacent exons of same transcript" if transcript.nil? 
         
         @previous_exon, @next_exon = [exon_1, exon_2].sort_by{|e| e.seq_region_start}
         @transcript = transcript

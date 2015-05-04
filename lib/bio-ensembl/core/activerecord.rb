@@ -188,7 +188,7 @@ module Ensembl
     #
     # @example
     #  coord_system = Ensembl::Core::CoordSystem.find_by_name('chromosome')
-    #  if coord_system == CoordSystem.toplevel
+    #  if coord_system.toplevel?
     #	 puts coord_system.name + " is the toplevel coordinate system."
     #  end
     class CoordSystem < DBConnection
@@ -202,9 +202,9 @@ module Ensembl
       # @return [Boolean] True if coord_system is toplevel, else false.
       def toplevel?
         if Collection.check # When usign multi-species databases
-          return true if self == CoordSystem.find_by_rank_and_species_id(1,self.species_id)
+          return self == CoordSystem.find_by_rank_and_species_id(1,self.species_id)
         else
-          return true if self == CoordSystem.find_by_rank(1)  
+          return self == CoordSystem.find_by_rank(1)  
         end
         return false
       end
