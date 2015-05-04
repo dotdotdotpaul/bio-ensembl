@@ -108,6 +108,30 @@ module Ensembl
         return Ensembl::Core::Slice.new(seq_region, start, stop, strand)
       end
 
+      # Retrieve a part of the sequence relative to the start of the region.
+      # NOTE:  Zero-based indexing, acts like an Array.
+      # Examples of use:
+      #   coords = CoordSystem.where(:name => "chromosome",
+      #                              :version => "GRCh37").first
+      #   seq_region = coords.where(:name => "7").first # Get chromosome 7
+      #   seq_region.sequence[10000..10010] # => "ctaaccctaac"
+      #
+      # NOTE:  This means you can retrieve, theoretically, the entire sequence
+      #        for a chromosome -- but be prepared to wait a very long time.
+      def [](range)
+        new_start = new_stop = nil
+        if range.is_a?(Fixnum)
+          new_start = new_stop = (range >= 0 ? @start : @stop+1) + range
+        elsif range.is_a?(Enumerable)
+          new_start = (range.first >= 0 ? @start : @stop+1) + range.first
+          new_stop = (range.last >= 0 ? @start : @stop+1) + range.last
+        else
+          raise ArgumentError.new("Expecting Fixnum or range")
+        end
+
+        return Ensembl::Core::Slice.fetch_by_region(@seq_region.coord_system.name, @seq_region.name, new_start, new_stop).seq
+      end
+
       # Create a Slice based on a Gene
       #
       # @example
@@ -201,7 +225,10 @@ module Ensembl
       def display_name
       	return [self.seq_region.coord_system.name, self.seq_region.coord_system.version, self.seq_region.name, self.start.to_s, self.stop.to_s, self.strand.to_s].join(':')
       end
-      alias to_s display_name
+
+      def to_s
+        self.seq.to_s
+      end
 
       # The Slice#overlaps? method checks if this slice overlaps another one.
       # The other slice has to be on the same coordinate system

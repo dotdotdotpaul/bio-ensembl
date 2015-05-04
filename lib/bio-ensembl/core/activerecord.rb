@@ -484,7 +484,7 @@ module Ensembl
       #
       # @return [String] DNA sequence
       def sequence
-        return self.dna.sequence
+        @sequence ||= self.dna.try(:sequence) || Ensembl::Core::Slice.fetch_by_region(self.coord_system.name, self.name)
       end
       alias seq sequence
 
