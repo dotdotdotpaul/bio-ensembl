@@ -172,10 +172,38 @@ module Ensembl
         return self.seq[0, self.coding_region_cdna_start - 1]
       end
 
+      # The Transcript#five_prime_utr_range returns the range of genomic
+      # coordinates involved in the 5' UTR sequence.  Note that for reverse
+      # strand genes, this is actually at the "high end" of the genomic
+      # sequence.  The range will still be in "machine read" order.
+      def five_prime_utr_range
+        exon = self.translation.start_exon
+        strand = exon.seq_region_strand
+        if strand == 1 # Forward strand
+          (exon.seq_region_start..(exon.seq_region_start + self.translation.seq_start - 1))
+        else # Reverse strand
+          ((exon.seq_region_end - self.translation.seq_start + 2)..exon.seq_region_end)
+        end
+      end
+
       # The Transcript#three_prime_utr_seq method returns the sequence of the
       # 3'UTR of the transcript.
       def three_prime_utr_seq
         return self.seq[self.coding_region_cdna_end..-1]
+      end
+
+      # The Transcript#three_prime_utr_range returns the range of genomic
+      # coordinates involved in the 3' UTR sequence.  Note that for reverse
+      # strand genes, this is actually at the "low end" of the genomic
+      # sequence.  The range will still be in "machine read" order.
+      def three_prime_utr_range
+        exon = self.translation.end_exon
+        strand = exon.seq_region_strand
+        if strand == 1 # Forward strand
+          ((exon.seq_region_start + self.translation.seq_end)..exon.seq_region_end)
+        else # Reverse strand
+          (exon.seq_region_start..(exon.seq_region_end - self.translation.seq_start))
+        end
       end
 
       # The Transcript#protein_seq method returns the sequence of the
