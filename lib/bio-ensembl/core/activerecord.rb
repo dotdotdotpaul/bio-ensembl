@@ -134,6 +134,14 @@ module Ensembl
         return self.seq_region_strand
       end
       
+      # The Sliceable#reverse_strand? method is a convenience method and
+      # returns true if seq_region_strand is negative, false otherwise.
+      # 
+      # @return [Boolean] seq_region_strand < 0
+      def reverse_strand?
+        self.seq_region_strand < 0
+      end
+      
       # The Sliceable#length method returns the length of the feature (based on
       # seq_region_start and seq_region_end.
       # 
