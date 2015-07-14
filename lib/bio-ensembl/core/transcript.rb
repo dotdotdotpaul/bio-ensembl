@@ -175,14 +175,16 @@ module Ensembl
       # The Transcript#five_prime_utr_range returns the range of genomic
       # coordinates involved in the 5' UTR sequence.  Note that for reverse
       # strand genes, this is actually at the "high end" of the genomic
-      # sequence.  The range will still be in "machine read" order.
+      # sequence.  The range will still be in "machine read" order.  NOTE:
+      # If the UTR spans exons, this will return the range inclusive of any
+      # intron positions between!
       def five_prime_utr_range
         exon = self.translation.start_exon
         strand = exon.seq_region_strand
         if strand == 1 # Forward strand
-          (exon.seq_region_start..(exon.seq_region_start + self.translation.seq_start - 1))
+          (self.exons.first.seq_region_start..(exon.seq_region_start + self.translation.seq_start - 1))
         else # Reverse strand
-          ((exon.seq_region_end - self.translation.seq_start + 2)..exon.seq_region_end)
+          ((exon.seq_region_end - (self.translation.seq_start - 2))..self.exons.first.seq_region_end)
         end
       end
 
@@ -200,9 +202,9 @@ module Ensembl
         exon = self.translation.end_exon
         strand = exon.seq_region_strand
         if strand == 1 # Forward strand
-          ((exon.seq_region_start + self.translation.seq_end)..exon.seq_region_end)
+          ((exon.seq_region_start + self.translation.seq_end)..self.exons.last.seq_region_end)
         else # Reverse strand
-          (exon.seq_region_start..(exon.seq_region_end - self.translation.seq_start))
+          (self.exons.last.seq_region_start..(exon.seq_region_end - self.translation.seq_end))
         end
       end
 
