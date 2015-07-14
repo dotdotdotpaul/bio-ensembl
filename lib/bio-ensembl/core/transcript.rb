@@ -182,7 +182,7 @@ module Ensembl
         exon = self.translation.start_exon
         strand = exon.seq_region_strand
         if strand == 1 # Forward strand
-          (self.exons.first.seq_region_start...(exon.seq_region_start + self.translation.seq_start - 1))
+          (self.exons.first.seq_region_start..(exon.seq_region_start - 1 + self.translation.seq_start - 1))
         else # Reverse strand
           ((exon.seq_region_end - (self.translation.seq_start - 2))..self.exons.first.seq_region_end)
         end
