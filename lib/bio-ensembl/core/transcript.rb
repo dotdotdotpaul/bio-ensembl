@@ -177,8 +177,9 @@ module Ensembl
       # strand genes, this is actually at the "high end" of the genomic
       # sequence.  The range will still be in "machine read" order.  NOTE:
       # If the UTR spans exons, this will return the range inclusive of any
-      # intron positions between!
+      # intron positions between! Returns nil if there is no 5' UTR
       def five_prime_utr_range
+        return nil if self.five_prime_utr_seq.length < 1
         exon = self.translation.start_exon
         strand = exon.seq_region_strand
         if strand == 1 # Forward strand
@@ -197,8 +198,10 @@ module Ensembl
       # The Transcript#three_prime_utr_range returns the range of genomic
       # coordinates involved in the 3' UTR sequence.  Note that for reverse
       # strand genes, this is actually at the "low end" of the genomic
-      # sequence.  The range will still be in "machine read" order.
+      # sequence.  The range will still be in "machine read" order. Returns
+      # nil if there is no 3' UTR.
       def three_prime_utr_range
+        return nil if self.five_prime_utr_seq.length < 1
         exon = self.translation.end_exon
         strand = exon.seq_region_strand
         if strand == 1 # Forward strand
