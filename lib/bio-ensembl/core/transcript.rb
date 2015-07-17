@@ -179,14 +179,15 @@ module Ensembl
       # If the UTR spans exons, this will return the range inclusive of any
       # intron positions between! Returns nil if there is no 5' UTR
       def five_prime_utr_range
-        return nil if self.five_prime_utr_seq.length < 1
         exon = self.translation.start_exon
         strand = exon.seq_region_strand
-        if strand == 1 # Forward strand
+        result = if strand == 1 # Forward strand
           (self.exons.first.seq_region_start..(exon.seq_region_start - 1 + self.translation.seq_start - 1))
         else # Reverse strand
           ((exon.seq_region_end - (self.translation.seq_start - 2))..self.exons.first.seq_region_end)
         end
+        return nil if result.first > result.last
+        result
       end
 
       # The Transcript#three_prime_utr_seq method returns the sequence of the
@@ -201,14 +202,15 @@ module Ensembl
       # sequence.  The range will still be in "machine read" order. Returns
       # nil if there is no 3' UTR.
       def three_prime_utr_range
-        return nil if self.three_prime_utr_seq.length < 1
         exon = self.translation.end_exon
         strand = exon.seq_region_strand
-        if strand == 1 # Forward strand
+        result = if strand == 1 # Forward strand
           ((exon.seq_region_start + self.translation.seq_end)..self.exons.last.seq_region_end)
         else # Reverse strand
           (self.exons.last.seq_region_start..(exon.seq_region_end - self.translation.seq_end))
         end
+        return nil if result.first > result.last
+        result
       end
 
       # The Transcript#protein_seq method returns the sequence of the
