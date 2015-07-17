@@ -201,7 +201,7 @@ module Ensembl
       # sequence.  The range will still be in "machine read" order. Returns
       # nil if there is no 3' UTR.
       def three_prime_utr_range
-        return nil if self.five_prime_utr_seq.length < 1
+        return nil if self.three_prime_utr_seq.length < 1
         exon = self.translation.end_exon
         strand = exon.seq_region_strand
         if strand == 1 # Forward strand
