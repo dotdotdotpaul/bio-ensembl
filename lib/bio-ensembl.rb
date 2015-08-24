@@ -63,3 +63,7 @@ require 'bio-ensembl/core/collection'
 
 # Variation modules
 require 'bio-ensembl/variation/activerecord'
+
+# API modules
+require 'bio-ensembl/api/api'
+
