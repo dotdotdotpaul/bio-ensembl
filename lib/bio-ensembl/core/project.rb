@@ -103,8 +103,8 @@ module Ensembl
           # if a slice covers both the PAR and the allosomal region, we'll make
           # two subslices (let's call them blocks not to intercede with the
           # Slice#subslices method) and project these independently.
-          assembly_exceptions = AssemblyException.find_all_by_seq_region_id(self.seq_region.id)
-          if assembly_exceptions.length > 0
+          assembly_exceptions = AssemblyException.where(:seq_region_id => self.seq_region.id)
+          if assembly_exceptions.count > 0
             # Check if this bit of the original slice is covered in the
             # assembly_exception table.
             overlapping_exceptions = Array.new

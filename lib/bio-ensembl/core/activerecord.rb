@@ -666,8 +666,8 @@ module Ensembl
       has_one :exon_stable_id
 
       has_many :exon_supporting_features
-      has_many :dna_align_features, :through => :exon_supporting_features, :conditions => ["feature_type = 'dna_align_feature'"]
-      has_many :protein_align_features, :through => :exon_supporting_features, :conditions => ["feature_type = 'protein_align_feature'"]
+      has_many :dna_align_features, -> { where("feature_type = 'dna_align_feature'") }, :through => :exon_supporting_features
+      has_many :protein_align_features, -> { where("feature_type = 'protein_align_feature'") }, :through => :exon_supporting_features
 
       # The Exon#seq method returns the sequence of the exon.
       def seq
@@ -1025,7 +1025,7 @@ module Ensembl
 
       belongs_to :analysis
       
-      has_many :object_xrefs, :foreign_key => 'ensembl_id', :conditions => "ensembl_object_type = 'Gene'"
+      has_many :object_xrefs, -> { where("ensembl_object_type = 'Gene'") }, :foreign_key => "ensembl_id" 
       has_many :xrefs, :through => :object_xrefs
 
       alias attribs gene_attribs
@@ -1306,7 +1306,7 @@ module Ensembl
       
       has_one :translation_stable_id
       
-      has_many :object_xrefs, :foreign_key => 'ensembl_id', :conditions => "ensembl_object_type = 'Translation'"
+      has_many :object_xrefs, -> { where("ensembl_object_type = 'Translation'") }, :foreign_key => 'ensembl_id'
       has_many :xrefs, :through => :object_xrefs
       
       belongs_to :start_exon, :class_name => 'Exon', :foreign_key => 'start_exon_id'

@@ -439,14 +439,14 @@ module Ensembl
 
         # Convert to the class object
         target_class = nil
-        ObjectSpace.each_object(Class) do |o|
-          if o.name =~ /^Ensembl::Core::#{class_name}$/
-            target_class = o
-          end
+        begin
+          target_class = Object.const_get("Ensembl::Core::#{class_name}")
+        rescue NameError
+          # target_class remains nil...
         end
 
         # If it exists, see if it implements Sliceable
-        if ! target_class.nil? and target_class.include?(Sliceable)
+        if target_class and target_class.include?(Sliceable)
           inclusive = false
           if [TrueClass, FalseClass].include?(args[0].class)
             inclusive = args[0]
@@ -454,7 +454,7 @@ module Ensembl
           return self.get_objects(target_class, table_name, inclusive)
         end
 
-        raise NoMethodError
+        raise NoMethodError, "attempted to call #{method_name.inspect} on #{class_name.inspect}"
 
       end
 
