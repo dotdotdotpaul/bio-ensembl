@@ -21,9 +21,9 @@ module Ensembl
     #
     # @example
     #   # SLOWER QUERY
-    #   vf = VariationFeature.find_by_variation_name('rs10111')
+    #   vf = VariationFeature.where(:variation_name => 'rs10111').first
     #   # FASTER QUERY
-    #   vf = Variation.find_by_name('rs10111').variation_feature
+    #   vf = Variation.where(:name => 'rs10111').first.variation_feature
     #   
     #   puts vf.seq_region_start, vf.seq_region_end, vf.allele_string
     #   puts vf.variation.ancestral_allele
@@ -322,7 +322,7 @@ module Ensembl
     # more information on what this means and what methods are available.
     #
     # @example 
-    #   vf = Variation.find_by_name('rs10111').variation_feature
+    #   vf = Variation.where(:name => 'rs10111').first.variation_feature
     #   vf.transcript_variations.each do |tv|
     #     puts tv.peptide_allele_string, tv.transcript.stable_id    
     #   end
@@ -362,7 +362,7 @@ module Ensembl
         end
         
         begin # this changed from release 58
-          return Ensembl::Core::Transcript.find_by_stable_id(self.transcript_stable_id)
+          return Ensembl::Core::Transcript.where(:stable_id => self.transcript_stable_id).first
         rescue NoMethodError  
           return Ensembl::Core::Transcript.find(self.transcript_id)
         end

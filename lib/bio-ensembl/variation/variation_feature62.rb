@@ -434,7 +434,7 @@ module Ensembl
         if !Ensembl::Core::DBConnection.connected? then     
             Ensembl::Core::DBConnection.connect(species,release.to_i,:username => user, :password => password,:host => host, :port => port)    
         end
-        return Ensembl::Core::Transcript.find_by_stable_id(self.feature_stable_id)        
+        return Ensembl::Core::Transcript.where(:stable_id => self.feature_stable_id).first
       end
       
     end

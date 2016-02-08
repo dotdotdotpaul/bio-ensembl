@@ -210,9 +210,9 @@ module Ensembl
       # @return [Boolean] True if coord_system is toplevel, else false.
       def toplevel?
         if Collection.check # When usign multi-species databases
-          return self == CoordSystem.find_by_rank_and_species_id(1,self.species_id)
+          return self == CoordSystem.where(:rank => 1, :species_id => self.species_id).first
         else
-          return self == CoordSystem.find_by_rank(1)  
+          return self == CoordSystem.find_by_rank(:rank => 1).first
         end
         return false
       end
@@ -687,11 +687,6 @@ module Ensembl
         return slice.seq
       end
       
-      
-      def self.find_by_stable_id(stable_id)
-        self.where(:stable_id => stable_id).first
-      end
-      
     end
 
     # The ExonTranscript class provides the link between exons and transcripts.
@@ -823,18 +818,6 @@ module Ensembl
       	self.marker_synonyms.collect{|ms| ms.name}.join(',')
       end
 
-      # The Marker#find_by_name class method returns one marker with this name.
-      #
-      # @return [Marker, nil] Marker object or nil
-      def self.find_by_name(name)
-        all_names = self.find_all_by_name(name)
-        if all_names.length == 0
-          return nil
-        else
-          return all_names[0]
-        end
-      end
-
       # The Marker#find_all_by_name class method returns all markers with this
       # name. If no marker is found, it returns an empty array.
       # 
@@ -848,6 +831,18 @@ module Ensembl
       	answers.flatten!
         return answers
       end
+
+      # This uses the above logic
+      # ie. not just replaceable with "where(:name => name).first"
+      def self.find_by_name(name)
+        all_names = self.find_all_by_name(name)
+        if all_names.length == 0
+          return nil
+        else
+          return all_names[0]
+        end
+      end
+
 
       #def to_mappings
       #	output = Array.new
@@ -933,11 +928,11 @@ module Ensembl
       end
       
       def self.find_all_by_attrib_type_value(code, value)
-        code_id = AttribType.find_by_code(code)
-      	misc_attribs = MiscAttrib.find_all_by_attrib_type_id_and_value(code_id, value)
+        code_id = AttribType.where(:code => code).first
+      	misc_attribs = MiscAttrib.where(:attrib_type_id => code_id, :value => value)
         answers = Array.new
       	misc_attribs.each do |ma|
-          answers.push(MiscFeature.find_all_by_misc_feature_id(ma.misc_feature_id))
+          answers.push(MiscFeature.where(:misc_feature_id => ma.misc_feature_id))
         end
       	answers.flatten!
         return answers
@@ -1059,20 +1054,11 @@ module Ensembl
       # The Gene#find_by_name class method searches the Xrefs for that name
       # and returns one Gene objects (even if there should be more). If the name is
       # not found, it returns nil.
+      # This uses the above, not just a simple replacement for where(:name => name).first
       def self.find_by_name(name)
         self.find_all_by_name(name).first
       end
 
-      # The Gene#find_by_stable_id class method fetches a Gene object based on
-      # its stable ID (i.e. the "ENSG" accession number). If the name is
-      # not found, it returns nil.
-      def self.find_by_stable_id(stable_id)
-        result = self.where(:stable_id => stable_id)
-        return result.first unless stable_id.is_a?(Array)
-        result
-      end
-
-      
       # The Gene#all_xrefs method is a convenience method in that it combines
       # three methods into one. It collects all xrefs for the gene itself, plus
       # all xrefs for all transcripts for the gene, and all xrefs for all
@@ -1335,12 +1321,6 @@ module Ensembl
       alias :label :display_label
       alias :name :display_label
 
-      # The Translation#find_by_stable_id class method fetches a Translation
-      # object based on its stable ID (i.e. the "ENSP" accession number). If the 
-      # name is not found, it returns nil.
-      def self.find_by_stable_id(stable_id)
-        self.where(:stable_id => stable_id).first
-      end
     end
 
     # The TranslationAttrib class provides an interface to the
@@ -1473,6 +1453,7 @@ module Ensembl
       # database that has this label. If no databases are found with this name,
       # this method returns nil.
       # empty array.
+      # Uses above, cannot be replaced with where(:display_label => label).first
       def self.find_by_display_label(label)
         all_dbs = self.find_all_by_display_label(label)
         if all_dbs.length == 0

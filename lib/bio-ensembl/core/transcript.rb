@@ -46,8 +46,8 @@ module Ensembl
         
         # See if any of these transcripts have the exons adjacent...
         transcript = transcripts.find do | t |
-          rank_1 = ExonTranscript.find_by_transcript_id_and_exon_id(transcript.id, exon_1.id).rank
-          rank_2 = ExonTranscript.find_by_transcript_id_and_exon_id(transcript.id, exon_2.id).rank
+          rank_1 = ExonTranscript.where(:transcript_id => transcript.id, :exon_id => exon_1.id).first.rank
+          rank_2 = ExonTranscript.where(:transcript_id => transcript.id, :exon_id => exon_2.id).first.rank
           (rank_2 - rank_1).abs > 1
         end
         # No transcript had the exons adjacent?
@@ -148,13 +148,6 @@ module Ensembl
       alias :label :display_label
       alias :name :display_label
 
-      # The Transcript#find_by_stable_id class method fetches a Transcript object based on
-      # its stable ID (i.e. the "ENST" accession number). If the name is
-      # not found, it returns nil.
-      def self.find_by_stable_id(stable_id)
-        self.where(:stable_id => stable_id).first
-      end
-      
       # The Transcript#seq method returns the full sequence of all concatenated
       # exons.
       def seq

@@ -388,7 +388,7 @@ module Ensembl
     # more information on what this means and what methods are available.
     #
     # @example
-    #   v = Variation.find_by_name('rs10111')
+    #   v = Variation.where(:name => 'rs10111').first
     #   v.alleles.each do |a|
     #     puts a.allele, a.frequency
     #   end
@@ -417,7 +417,7 @@ module Ensembl
       has_many :variation_sets, :through => :variation_set_variations
 
       def self.fetch_all_by_source(source)
-        variations = Source.find_by_name(source).variations
+        variations = Source.where(:name => source).first.variations
       end
     end
     

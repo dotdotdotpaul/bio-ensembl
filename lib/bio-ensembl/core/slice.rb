@@ -99,7 +99,7 @@ module Ensembl
       	  raise message
         end
 
-        seq_region = Ensembl::Core::SeqRegion.find_by_name_and_coord_system_id(seq_region_name, coord_system.id)
+        seq_region = Ensembl::Core::SeqRegion.where(:name => seq_region_name, :coord_system_id => coord_system.id).first
         #seq_region = Ensembl::Core::SeqRegion.find_by_sql("SELECT * FROM seq_region WHERE name = '" + seq_region_name + "' AND coord_system_id = " + coord_system.id.to_s)[0]
       	unless seq_region.class == Ensembl::Core::SeqRegion
           raise "Couldn't find a Ensembl::Core::SeqRegion object with the name '" + seq_region_name + "'"
@@ -179,15 +179,15 @@ module Ensembl
       	   species_id = Collection.get_species_id(species)
       	   raise ArgumentError, "No specie found in the database with this name: #{species}" if species_id.nil?
       	   if version.nil?
-              coord_system = Ensembl::Core::CoordSystem.find_by_name_and_species_id(coord_system_name,species_id)
+              coord_system = Ensembl::Core::CoordSystem.where(:name => coord_system_name, :species_id => species_id).first
            else
-              coord_system = Ensembl::Core::CoordSystem.find_by_name_and_species_id_and_version(coord_system_name, species_id, version)
+              coord_system = Ensembl::Core::CoordSystem.where(:name => coord_system_name, :species_id => species_id, :version => version).first
            end  
         else
            if version.nil?
-              coord_system = Ensembl::Core::CoordSystem.find_by_name(coord_system_name)
+              coord_system = Ensembl::Core::CoordSystem.where(:name => coord_system_name).first
            else
-              coord_system = Ensembl::Core::CoordSystem.find_by_name_and_version(coord_system_name, version) 
+              coord_system = Ensembl::Core::CoordSystem.where(:name => coord_system_name, :version => version).first
            end
         end
       	coord_system.seq_regions.each do |seq_region|
@@ -583,7 +583,7 @@ SQL
       	if analysis_name.nil?
           return DnaAlignFeature.find_by_sql('SELECT * FROM dna_align_feature WHERE seq_region_id = ' + self.seq_region.id.to_s + ' AND seq_region_start >= ' + self.start.to_s + ' AND seq_region_end <= ' + self.stop.to_s)
         else
-          analysis = Analysis.find_by_logic_name(analysis_name)
+          analysis = Analysis.where(:logic_name => analysis_name).first
           return DnaAlignFeature.find_by_sql('SELECT * FROM dna_align_feature WHERE seq_region_id = ' + self.seq_region.id.to_s + ' AND seq_region_start >= ' + self.start.to_s + ' AND seq_region_end <= ' + self.stop.to_s + ' AND analysis_id = ' + analysis.id.to_s)
         end
       end
@@ -606,7 +606,7 @@ SQL
       	if analysis_name.nil?
           return ProteinAlignFeature.find_by_sql('SELECT * FROM protein_align_feature WHERE seq_region_id = ' + self.seq_region.id.to_s + ' AND seq_region_start >= ' + self.start.to_s + ' AND seq_region_end <= ' + self.stop.to_s)
         else
-          analysis = Analysis.find_by_logic_name(analysis_name)
+          analysis = Analysis.where(:logic_name => analysis_name).first
           return ProteinAlignFeature.find_by_sql('SELECT * FROM protein_align_feature WHERE seq_region_id = ' + self.seq_region.id.to_s + ' AND seq_region_start >= ' + self.start.to_s + ' AND seq_region_end <= ' + self.stop.to_s + ' AND analysis_id = ' + analysis.id.to_s)
         end
       end
