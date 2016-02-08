@@ -88,20 +88,28 @@ module Ensembl
       has_many :transcript_attribs
       
       has_many :exon_transcripts
-      has_many :exons, -> { order("exon_transcript.rank") }, :through => :exon_transcripts
+      if Rails.version.start_with?("3")
+        has_many :exons, :order => "exon_transcript.rank", :through => :exon_transcripts
+        has_many :object_xrefs, :conditions => {:ensembl_object_type => "Transcript"},
+                                :foreign_key => "ensembl_id"
+        has_many :dna_align_features, :conditions => { :feature_type => "dna_align_feature"}, :through => :transcript_supporting_features
+        has_many :protein_align_features, :conditions => { :feature_type => "protein_align_feature"}, :through => :transcript_supporting_features
+      else
+        has_many :exons, -> { order("exon_transcript.rank") }, :through => :exon_transcripts
+        has_many :object_xrefs, -> { where(:ensembl_object_type =>
+                                               "Transcript") },
+                                :foreign_key => "ensembl_id"
+        has_many :dna_align_features, -> { where(:feature_type => "dna_align_feature") }, :through => :transcript_supporting_features
+        has_many :protein_align_features, -> { where(:feature_type => "protein_align_feature") }, :through => :transcript_supporting_features
+      end
 
       has_one :translation
       belongs_to :canonical_translation, :class_name => "Translation"
       
-      has_many :object_xrefs, -> { where(:ensembl_object_type =>
-                                             "Transcript") },
-                              :foreign_key => "ensembl_id"
 
       has_many :xrefs, :through => :object_xrefs
 
       has_many :transcript_supporting_features
-      has_many :dna_align_features, -> { where(:feature_type => "dna_align_feature") }, :through => :transcript_supporting_features
-      has_many :protein_align_features, -> { where(:feature_type => "protein_align_feature") }, :through => :transcript_supporting_features
 
       alias attribs transcript_attribs
 
